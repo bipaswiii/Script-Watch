@@ -5,3 +5,4 @@ config();
 export const port = process.env.PORT || 8001;
 export const dbUrl = process.env.DB_URL;
 export const baseUrl = process.env.BASE_URL;
+export const apiVersion = process.env.API_VERSION;

@@ -5,6 +5,7 @@ const fingerPrintingRouter = Router();
 
 fingerPrintingRouter
   .route("/")
-  .post(fingerPrintingController.detectFingerprint);
+  .post(fingerPrintingController.detectFingerprint)
+  .get(fingerPrintingController.getAllScripts);
 
 export default fingerPrintingRouter;

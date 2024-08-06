@@ -1,9 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import tkinter as tk
-from tkinter import ttk, scrolledtext
 import hashlib
+import json
 
 fingerprinting_patterns = [
     re.compile(r"var np = navigator\.platform;", re.IGNORECASE),
@@ -15,21 +14,11 @@ fingerprinting_patterns = [
     re.compile(r"var dm = navigator\.deviceMemory;", re.IGNORECASE),
     re.compile(r"var os = navigator\.oscpu;", re.IGNORECASE),
     re.compile(r"var dnt = navigator\.doNotTrack;", re.IGNORECASE),
-    re.compile(r'colorGamuts = \["rec2020", "p3", "srgb"\]', re.IGNORECASE),  
+    re.compile(r'colorGamuts = \["rec2020", "p3", "srgb"\]', re.IGNORECASE),
     re.compile(r'Boolean\(matchMedia\("\(prefers-reduced-motion: " \+ x \+ "\)"\)\.matches\)', re.IGNORECASE),
     re.compile(r'Boolean\(matchMedia\("\(dynamic-range: " \+ x \+ "\)"\)\.matches\)', re.IGNORECASE),
     re.compile(r'Boolean\(matchMedia\("\(prefers-contrast: " \+ x \+ "\)"\)\.matches\)', re.IGNORECASE),
     re.compile(r'resolve\(\[0, \[Number\(screen\.width\), Number\(screen\.height\)\]\.sort\(\)\.reverse\(\)\.join\("x"\)\]\)', re.IGNORECASE),
-    
-    
-    # re.compile(r'screen\.colorDepth'),
-    # re.compile(r'window\.devicePixelRatio'),
-    # re.compile(r'navigator\.maxTouchPoints'),
-    # re.compile(r'navigator\.cpuClass'),
-    # re.compile(r'navigator\.hardwareConcurrency'),
-    # re.compile(r'navigator\.deviceMemory'),
-    # re.compile(r'navigator\.oscpu'),
-    # re.compile(r'navigator\.doNotTrack'), 
     re.compile(r'sourceBuffer'),
     re.compile(r'colorGamut'),
     re.compile(r'reducedMotion'),
@@ -42,32 +31,14 @@ fingerprinting_patterns = [
     re.compile(r'new Date\(\)\.getTimezoneOffset\(\)'),
     re.compile(r'Intl\.DateTimeFormat\(\)\.resolvedOptions\(\)\.timeZone'),
     re.compile(r'navigator\.language'),
-    # re.compile(r'screen\.width'),
     re.compile(r'performance\.memory\.jsHeapSizeLimit'),
     re.compile(r'new (window\.AudioContext|window\.webkitAudioContext)'),
-    # re.compile(r'navigator\.userAgentData'),
-    # re.compile(r'canvas\.getContext\("2d"\)'),
-    re.compile(r'performance\.now\(\)'),
-    # re.compile(r'window\.speechSynthesis'),
-    # re.compile(r'window\.ApplePaySession'),
-    # re.compile(r'attributionsourceid'),
-    # re.compile(r'canvas\.getContext\("webgl"\)'),
     re.compile(r'gl\.getParameter\((gl\.VERSION|gl\.VENDOR)\)'),
     re.compile(r'new FontFace\('),
-    # re.compile(r'navigator\.plugins'),
     re.compile(r'navigator\.plugins\.length === 0'),
-    # re.compile(r'window\.SharedArrayBuffer'),
-    # re.compile(r'navigator\.webdriver'),
-    re.compile(r'element\.getAttributeNames\(\)'),
-    re.compile(r'new Error\(\)'),
-    re.compile(r'navigator\.mimeTypes'),
-    re.compile(r'InstallTrigger'),
-    # re.compile(r'navigator\.connection\.rtt'),
     re.compile(r'Math\.random'),
     re.compile(r'Notification\.requestPermission')
 ]
-
-url = 'http://localhost:3000'
 
 def scrape_page(url):
     response = requests.get(url)
@@ -106,43 +77,8 @@ def generate_fingerprint_id(detected_techniques):
     fingerprint_id = hashlib.sha256(''.join(sorted(detected_techniques)).encode()).hexdigest()
     return fingerprint_id
 
-def display_detected_fingerprints(detected_techniques, fingerprint_id):
-    root = tk.Tk()
-    root.title("Fingerprinting Detector")
-
-    # Set the background color
-    root.configure(background='#f0f0f0')
-
-    # Create a main frame
-    main_frame = ttk.Frame(root, padding="10 10 10 10")
-    main_frame.pack(fill="both", expand=True)
-
-    # Create a label
-    label = ttk.Label(main_frame, text="Detected Fingerprinting Information:", font=("Helvetica", 16))
-    label.pack(pady=10)
-
-    # Create a text area
-    text_area = scrolledtext.ScrolledText(main_frame, width=80, height=20, font=("Helvetica", 12))
-    text_area.pack(padx=10, pady=10)
-    
-
-    # Insert the fingerprint ID
-    text_area.insert(tk.INSERT, f"\nFingerprint ID: {fingerprint_id}\n")
-    # Insert the detected techniques
-    text_area.insert(tk.INSERT, "\n")
-    for technique in detected_techniques:
-        text_area.insert(tk.INSERT, f"- {technique}\n")
-
-    
-
-    # Create a button
-    button = ttk.Button(main_frame, text="Close", command=root.destroy)
-    button.pack(pady=10)
-
-    root.mainloop()
-
 def main():
-    url = 'http://localhost:3000'
+    url = 'http://localhost:3000/'
     scripts = scrape_page(url)
     detected_techniques = set()
 
@@ -150,16 +86,22 @@ def main():
         if script_content:  
             detected_techniques.update(detect_fingerprinting(script_content))
 
-    with open('fp.js', 'r') as file:
-        fp_js_content = file.read()
-        detected_techniques.update(detect_fingerprinting(fp_js_content))
+    try:
+        with open('./backend/api/fp.js', 'r') as file:
+            fp_js_content = file.read()
+            detected_techniques.update(detect_fingerprinting(fp_js_content))
+    except FileNotFoundError:
+        pass  # Optionally log this error
 
     fingerprint_id = generate_fingerprint_id(detected_techniques)
-    display_detected_fingerprints(detected_techniques, fingerprint_id)
+
+    # Output the results as JSON
+    result = {
+        'fingerprint_id': fingerprint_id,
+        'detected_techniques': list(detected_techniques)
+    }
+
+    print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()
-
-
-
-    
