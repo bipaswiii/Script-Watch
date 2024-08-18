@@ -22,9 +22,11 @@ const GeneratedScript = () => {
   return (
     <Section className="flex justify-center">
       {scriptData.scripts.map((script) => (
-        <Card key={script._id} className="mb-4 w-9/12  ">
+        <Card key={script._id} className="mb-4 w-9/12 ">
           <h3 className="text-lg font-bold mb-2">Detected Script</h3>
-          <p className="text-white">{script.data}</p>
+          <pre className="text-white bg-gray-800 p-4 rounded">
+            {JSON.stringify(JSON.parse(script.data), null, 2)}
+          </pre>
         </Card>
       ))}
     </Section>

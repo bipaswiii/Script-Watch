@@ -77,6 +77,7 @@ const ChatAi = () => {
                       ? "bg-blue-500 text-black self-end"
                       : "bg-primamry text-indigo-400 self-start "
                   }`}
+                  style={{ whiteSpace: "pre-wrap" }} // Add this line
                 >
                   {message.text}
                 </div>

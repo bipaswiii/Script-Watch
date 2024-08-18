@@ -2,7 +2,6 @@ import { curve, heroBackground, robot } from "../assets";
 import Button from "./Button";
 import Section from "./Section";
 import Notification from "./Notification";
-import CompanyLogos from "./CompanyLogos";
 import { BackgroundCircles, BottomLine, Gradient } from "./design/Hero";
 import { heroIcons } from "../constants";
 import { ScrollParallax } from "react-just-parallax";
@@ -54,10 +53,7 @@ const Hero = ({ scrollToChatAi }) => {
               />
             </span>
           </h1>
-          <p className="body-1 max-w-3xl mx-auto mb-6 text-n-2 lg:mb-8">
-            Unleash the power of AI within Script Watch. Upgrade your
-            productivity with Script blab, the open AI chat app.
-          </p>
+      
           <div className="flex justify-center gap-3">
             <Button white onClick={() => setOpenModal(true)}>
               Detect
@@ -133,8 +129,6 @@ const Hero = ({ scrollToChatAi }) => {
 
           <BackgroundCircles />
         </div>
-
-        <CompanyLogos className="hidden relative z-10 mt-20 lg:block" />
       </div>
       <BottomLine />
     </Section>

@@ -41,10 +41,13 @@ export const detectFingerprint = (req, res) => {
       });
     }
 
-    // Log parsed data for debugging
     console.log("Parsed fingerprint data:", fingerprintData);
 
-    const fingerprint = new Fpcode({ data: JSON.stringify(fingerprintData) });
+    const formattedFingerprintData = JSON.stringify(fingerprintData, null, 2);
+
+    console.log("Formatted fingerprint data:", formattedFingerprintData);
+
+    const fingerprint = new Fpcode({ data: formattedFingerprintData });
     fingerprint
       .save()
       .then((savedFingerprint) => {
